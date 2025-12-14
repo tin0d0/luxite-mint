@@ -1,0 +1,9 @@
+[package]
+name = "luxite-mint-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+anchor-spl = "0.32.1"
+mpl-token-metadata = "5.0.0-beta.1"
