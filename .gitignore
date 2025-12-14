@@ -4,12 +4,11 @@ target
 node_modules
 test-ledger
 scripts
-
-!package.json
-!package-lock.json
-!tsconfig.json
-!Anchor.toml
-
+tests
+cli
+package.json
+package-lock.json
+tsconfig.json
 LUX-mint.json
 config.json
 deployed-*.json
