@@ -1,0 +1,17 @@
+[package]
+name = "luxite-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+publish = false
+
+[dependencies]
+luxite-mint-api = { path = "../api" }
+anchor-lang.workspace = true
+anchor-spl.workspace = true
+solana-client.workspace = true
+solana-sdk.workspace = true
+anyhow.workspace = true
+tokio.workspace = true

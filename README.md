@@ -29,14 +29,6 @@ luxite-mint/
 │       └── lib.rs
 ├── cli/                    # Rust CLI tool
 │   └── src/main.rs
-├── scripts/                # TypeScript scripts
-│   ├── initialize.ts
-│   ├── wrap.ts
-│   ├── unwrap.ts
-│   ├── status.ts
-│   └── grind-vanity.ts
-├── tests/
-│   └── luxite-mint.ts
 ├── Anchor.toml
 ├── Cargo.toml              # Workspace config
 └── package.json
@@ -113,19 +105,6 @@ solana config set --url mainnet-beta
 anchor deploy --provider.cluster mainnet
 npm run init:mainnet
 ```
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `anchor build` | Build the program |
-| `anchor test` | Run tests |
-| `npm run grind LUX` | Generate vanity address |
-| `npm run init:devnet` | Initialize on devnet |
-| `npm run init:mainnet` | Initialize on mainnet |
-| `npm run wrap <amount>` | Wrap LSQ → LUXITE |
-| `npm run unwrap <amount>` | Unwrap LUXITE → LSQ |
-| `npm run status` | Check wrapper status |
 
 ## Security
 

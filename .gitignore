@@ -5,7 +5,6 @@ node_modules
 test-ledger
 scripts
 tests
-cli
 package.json
 package-lock.json
 tsconfig.json
