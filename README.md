@@ -1,16 +1,39 @@
 # LUXITE Mint
 
-A 1:1 token wrapper that converts LSQ (pump.fun token) to LUXITE (Token-2022 with updatable metadata).
-
+A 1:1 token wrapper that converts LSQ (pump.fun token) to LUXITE. Wrapping burns LSQ permanently.
 ```
 LSQ (pump.fun)          LUXITE
-├─ Immutable       →    ├─ Mutable metadata ✓
-├─ Old branding         ├─ New branding
-└─ Existing liquidity   └─ Your new token
+├─ No utility      →    ├─ Mining rewards
+├─ Old branding         ├─ Staking yields
+└─ Burns on wrap        └─ Deflationary
+```
+
+## Program Status
+
+- **Program ID:** `77tYCaHwRC8mDJbgBVQLN95P2ATu7UJQn8M8mi4zBq4y`
+- **Authority:** None (immutable)
+- **Upgrade Authority:** Revoked permanently
+
+## How It Works
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     LUXITE MINT PROGRAM                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   wrap()                                                    │
+│   ──────                                                    │
+│   1. User sends LSQ                                         │
+│   2. LSQ gets BURNED (supply decreases)                     │
+│   3. LUXITE minted 1:1 to user                              │
+│                                                             │
+│   unwrap()                                                  │
+│   ────────                                                  │
+│   REMOVED - one way only                                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Project Structure
-
 ```
 luxite-mint/
 ├── api/                    # API crate - shared types & constants
@@ -21,92 +44,49 @@ luxite-mint/
 │       └── lib.rs
 ├── program/                # Anchor program
 │   └── src/
-│       ├── instructions/   # Instruction handlers
+│       ├── instructions/
 │       │   ├── initialize.rs
 │       │   ├── create_metadata.rs
 │       │   ├── wrap.rs
-│       │   └── unwrap.rs
+│       │   └── burn_vault.rs
 │       └── lib.rs
 ├── cli/                    # Rust CLI tool
-│   └── src/main.rs
+├── scripts/                # Deployment scripts
 ├── Anchor.toml
-├── Cargo.toml              # Workspace config
+├── Cargo.toml
 └── package.json
 ```
 
-## How It Works
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     LUXITE MINT PROGRAM                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   wrap()                           unwrap()                 │
-│   ──────                           ────────                 │
-│   LSQ in → LUXITE out              LUXITE in → LSQ out      │
-│                                                             │
-│                    ┌─────────┐                              │
-│                    │  VAULT  │                              │
-│                    │  (PDA)  │                              │
-│                    └─────────┘                              │
-│                    Holds LSQ                                │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## API
-
-- [`consts`](api/src/consts.rs) – Program constants
-- [`error`](api/src/error.rs) – Custom program errors
-- [`state`](api/src/state/) – Account definitions
-
 ## Instructions
 
-- [`initialize`](program/src/instructions/initialize.rs) – Initialize wrapper
-- [`create_metadata`](program/src/instructions/create_metadata.rs) – Create token metadata
-- [`wrap`](program/src/instructions/wrap.rs) – Wrap LSQ → LUXITE
-- [`unwrap`](program/src/instructions/unwrap.rs) – Unwrap LUXITE → LSQ
+| Instruction | Description |
+|-------------|-------------|
+| `initialize` | Initialize wrapper state and LUXITE mint |
+| `create_metadata` | Create token metadata for LUXITE |
+| `wrap` | Burn LSQ, mint LUXITE 1:1 |
+| `burn_vault` | One-time burn of legacy vault LSQ (already executed) |
 
-## Quick Start
+## Tokenomics
 
-### Prerequisites
+- **LSQ Max Supply:** ~998,248,654 (and decreasing)
+- **LUXITE Supply:** Equals total wrapped LSQ
+- **Wrap Rate:** 1 LSQ = 1 LUXITE (always)
+- **Unwrap:** Not possible (disabled permanently)
 
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-cargo install --git https://github.com/coral-xyz/anchor avm --locked
-avm install 0.30.1
-avm use 0.30.1
-npm install
-```
-
-### Build
-
-```bash
-anchor build
-```
-
-### Test
-
-```bash
-anchor test
-```
-
-### Deploy
-
-```bash
-# Devnet
-solana config set --url devnet
-anchor deploy --provider.cluster devnet
-npm run init:devnet
-
-# Mainnet
-solana config set --url mainnet-beta
-anchor deploy --provider.cluster mainnet
-npm run init:mainnet
-```
+Every wrap:
+1. Decreases LSQ supply (burned)
+2. Increases LUXITE supply (minted)
+3. Total value unchanged
 
 ## Security
 
-- **Vault is PDA-controlled**: No private key, only program can access
-- **1:1 enforced by code**: Can't mint without depositing, can't withdraw without burning
+- **Immutable:** Program upgrade authority revoked
+- **One-way:** No unwrap, LSQ burns permanently
+- **No vault:** LSQ burned directly, not stored
+- **Mint authority:** Wrapper PDA only, no admin keys
+
+## Links
+
+- **LUXITE Token:** [LUXvvdZyhKyuRHackWFghcJB3L6DjQH2SAvEjmaksRu](https://solscan.io/token/LUXvvdZyhKyuRHackWFghcJB3L6DjQH2SAvEjmaksRu)
+- **LSQ Token:** [Gd4qRUCe3J871r5uVuxv8aUUnDbeT27TGaFjWVnhpump](https://solscan.io/token/Gd4qRUCe3J871r5uVuxv8aUUnDbeT27TGaFjWVnhpump)
+- **Program:** [77tYCaHwRC8mDJbgBVQLN95P2ATu7UJQn8M8mi4zBq4y](https://solscan.io/account/77tYCaHwRC8mDJbgBVQLN95P2ATu7UJQn8M8mi4zBq4y)
