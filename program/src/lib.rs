@@ -38,7 +38,7 @@ pub mod luxite_mint {
         instructions::wrap::handler(ctx, amount)
     }
 
-    pub fn unwrap(ctx: Context<Unwrap>, amount: u64) -> Result<()> {
-        instructions::unwrap::handler(ctx, amount)
+    pub fn burn_vault(ctx: Context<BurnVault>) -> Result<()> {
+        instructions::burn_vault::handler(ctx)
     }
 }

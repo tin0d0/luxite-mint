@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{mint_to, transfer, Mint, MintTo, Token, TokenAccount, Transfer},
+    token::{burn, mint_to, Burn, Mint, MintTo, Token, TokenAccount},
 };
 use luxite_mint_api::prelude::*;
 
@@ -13,13 +13,13 @@ pub struct Wrap<'info> {
     #[account(mut, seeds = [WRAPPER_SEED], bump = wrapper_state.bump)]
     pub wrapper_state: Account<'info, WrapperState>,
 
+    #[account(mut, address = wrapper_state.lsq_mint)]
+    pub lsq_mint: Account<'info, Mint>,
+
     #[account(mut, address = wrapper_state.luxite_mint)]
     pub luxite_mint: Account<'info, Mint>,
 
-    #[account(mut, address = wrapper_state.vault)]
-    pub vault: Account<'info, TokenAccount>,
-
-    #[account(mut, token::mint = wrapper_state.lsq_mint, token::authority = user)]
+    #[account(mut, token::mint = lsq_mint, token::authority = user)]
     pub user_lsq_ata: Account<'info, TokenAccount>,
 
     #[account(
@@ -38,12 +38,13 @@ pub struct Wrap<'info> {
 pub fn handler(ctx: Context<Wrap>, amount: u64) -> Result<()> {
     require!(amount > 0, LuxiteError::ZeroAmount);
 
-    transfer(
+    // Burn LSQ from user
+    burn(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
-            Transfer {
+            Burn {
+                mint: ctx.accounts.lsq_mint.to_account_info(),
                 from: ctx.accounts.user_lsq_ata.to_account_info(),
-                to: ctx.accounts.vault.to_account_info(),
                 authority: ctx.accounts.user.to_account_info(),
             },
         ),
@@ -53,6 +54,7 @@ pub fn handler(ctx: Context<Wrap>, amount: u64) -> Result<()> {
     let seeds = &[WRAPPER_SEED, &[ctx.accounts.wrapper_state.bump]];
     let signer_seeds = &[&seeds[..]];
 
+    // Mint LUXITE to user
     mint_to(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
